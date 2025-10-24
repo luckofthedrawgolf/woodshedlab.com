@@ -1,1 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Woodshed Lab — Professional Music Coaching</title>
+  <meta name="description" content="Private music lessons from working pros. Upload a clip or book live coaching.">
+  <link rel="preload" as="image" href="/assets/hero-poster.webp" />
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="/favicon.ico" />
+</head>
+<body>
+  <!-- Sticky Header -->
+  <header class="site-header" data-header>
+    <div class="container nav">
+      <a class="brand" href="/">WOODSHED&nbsp;LAB</a>
+      <nav class="links">
+        <a href="#how">How It Works</a>
+        <a href="/instructors.html">Instructors</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a class="btn" href="/apply.html">Apply</a>
+      </nav>
+      <button class="hamburger" aria-label="Open Menu" data-menu-btn>
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="mobile-drawer" data-drawer>
+      <a href="#how">How It Works</a>
+      <a href="/instructors.html">Instructors</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn" href="/apply.html">Apply</a>
+    </div>
+  </header>
 
+  <!-- Hero -->
+  <section class="hero">
+    <!-- Video background (safe if missing: we show poster/gradient) -->
+    <video class="hero-video" autoplay muted playsinline loop preload="none" poster="/assets/hero-poster.webp" aria-hidden="true" data-hero-video>
+      <source src="/assets/hero.mp4" type="video/mp4" />
+    </video>
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+      <h1 class="headline">Private Music Lessons from Working Pros</h1>
+      <p class="subhead">Upload a clip or book live coaching. Start with drums today — add more instruments as we grow.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="/instructors.html">Find an Instructor</a>
+        <a class="btn ghost" href="/apply.html">Apply as Instructor</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Placeholder anchors for future sections -->
+  <main>
+    <section id="how" class="section">
+      <div class="container">
+        <h2>How It Works</h2>
+        <ol class="steps">
+          <li><strong>Pick an Instructor</strong> — browse verified pros.</li>
+          <li><strong>Upload or Schedule</strong> — send a clip or book live.</li>
+          <li><strong>Get Feedback</strong> — personalized video notes or real-time coaching.</li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="pricing" class="section">
+      <div class="container">
+        <h2>Pricing</h2>
+        <p>Sample tiers like Skillest (we’ll refine later): 30-min, 60-min, Monthly.</p>
+      </div>
+    </section>
+
+    <section id="faq" class="section">
+      <div class="container">
+        <h2>FAQ</h2>
+        <p>We’ll add real Q&A next step.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="brand brand-footer">WOODSHED LAB</div>
+        <p class="tagline">Professional music coaching — anytime, anywhere.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="#how">How It Works</a></li>
+          <li><a href="/instructors.html">Instructors</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+          <li><a href="#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/contact.html">Contact</a></li>
+          <li><a href="/legal/privacy.html">Privacy</a></li>
+          <li><a href="/legal/terms.html">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container footnote">© <span id="year"></span> Woodshed Lab. All rights reserved.</div>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
