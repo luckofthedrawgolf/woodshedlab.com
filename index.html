@@ -281,5 +281,15 @@
     setHeaderAuth(!!sess);
   });
 </script>
+<script>
+  // Mobile hamburger toggler
+  const burger = document.querySelector('.hamburger');
+  const header = document.querySelector('.site-header');
+  burger?.addEventListener('click', () => {
+    header.classList.toggle('open');
+  });
+</script>
+
+  
 </body>
 </html>
