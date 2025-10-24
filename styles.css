@@ -152,3 +152,47 @@ body{
 .auth-switch a { color: #f6b45f; }
 .auth-message { margin-top: .5rem; min-height: 1.25rem; font-size: .9rem; }
 .btn.small { padding: .35rem .7rem; font-size: .9rem; }
+
+/* Kill the sideways scroll caused by the off-screen menu */
+html, body {
+  overflow-x: hidden;
+}
+
+/* Mobile menu = full-screen overlay when header is "open" */
+@media (max-width: 640px) {
+  /* Hide the links by default on phones */
+  .site-header .links {
+    position: fixed;
+    top: 56px;          /* roughly header height; adjust if needed */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: none;
+    padding: 16px;
+    background: rgba(0,0,0,0.92);  /* dark overlay so items are readable */
+    z-index: 1000;
+  }
+
+  /* When header gets .open, show the menu */
+  .site-header.open .links {
+    display: block;
+  }
+
+  /* Make each link / button tappable */
+  .site-header .links a,
+  .site-header .links .btn {
+    display: block;
+    width: 100%;
+    padding: 14px 10px;
+    margin: 8px 0;
+    text-align: left;
+    font-size: 18px;
+  }
+
+  /* Keep the hamburger above the overlay so it can close the menu */
+  .hamburger {
+    position: relative;
+    z-index: 1001;
+  }
+}
+
