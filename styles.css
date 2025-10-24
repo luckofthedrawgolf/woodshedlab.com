@@ -195,4 +195,45 @@ html, body {
     z-index: 1001;
   }
 }
+/* prevent sideways scrolling */
+html, body { overflow-x: hidden; }
+
+/* utilities to show/hide per breakpoint */
+.hide-desktop { display: none; }
+.hide-mobile  { display: initial; }
+
+@media (max-width: 768px) {
+  .hide-desktop { display: inline-flex; }
+  .hide-mobile  { display: none; }
+
+  /* make the mobile menu a proper off-canvas panel */
+  .site-header nav.links{
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100vh;
+    width: 85vw;
+    max-width: 360px;
+    background: var(--paper, #fff);
+    transform: translateX(100%);           /* start off screen */
+    transition: transform .3s ease;
+    padding: 24px 20px;
+    overflow-y: auto;
+    box-shadow: -12px 0 24px rgba(0,0,0,.15);
+    z-index: 1000;
+  }
+
+  /* when body has .nav-open, slide it in */
+  body.nav-open .site-header nav.links { transform: translateX(0); }
+
+  /* optional: dimmed backdrop behind panel */
+  .nav-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,.4);
+    opacity: 0; visibility: hidden;
+    transition: opacity .2s ease;
+    z-index: 999;
+  }
+  body.nav-open .nav-backdrop { opacity: 1; visibility: visible; }
+}
 
