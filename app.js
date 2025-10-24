@@ -83,4 +83,53 @@ authBtn.addEventListener('click', async (e) => {
     if (typeof ui === 'function') ui('open');
   }
 });
+// --- Cloudinary Upload + Supabase Save ---
+
+// initialize upload button
+const uploadBtn = document.getElementById('upload-btn');
+if (uploadBtn) {
+  uploadBtn.addEventListener('click', async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      alert('Please sign in first.');
+      return;
+    }
+
+    const widget = cloudinary.createUploadWidget(
+      {
+        cloudName: 'degawkws3',
+        uploadPreset: 'unsigned_upload',
+        resourceType: 'video',
+        multiple: false,
+        folder: 'woodshedlab_uploads',
+      },
+      async (error, result) => {
+        if (!error && result && result.event === 'success') {
+          console.log('Upload successful:', result.info);
+
+          // Save video info to Supabase
+          const { data, error: dbError } = await supabase
+            .from('videos')
+            .insert([
+              {
+                uploader_id: user.id,
+                title: result.info.original_filename,
+                url: result.info.secure_url,
+              },
+            ]);
+
+          if (dbError) {
+            console.error('Error saving to Supabase:', dbError);
+            alert('Video uploaded but not saved to database.');
+          } else {
+            alert('Video uploaded successfully!');
+            location.reload();
+          }
+        }
+      }
+    );
+
+    widget.open();
+  });
+}
 
