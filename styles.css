@@ -121,3 +121,34 @@ body{
   transform: translateY(-1px);
   box-shadow: 0 10px 18px rgba(255,122,26,0.35);
 }
+/* ----- Auth Modal ----- */
+.modal.hidden { display: none; }
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: grid; place-items: center;
+  z-index: 1000;
+}
+.modal-dialog {
+  width: min(92vw, 420px);
+  background: #111; color: #f5f5f5;
+  border-radius: 14px;
+  padding: 1.25rem 1.25rem 1.5rem;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  position: relative;
+}
+.modal-dialog h3 { margin: 0 0 .75rem; }
+.modal-dialog label { display: grid; gap: .35rem; margin: .75rem 0; }
+.modal-dialog input {
+  background: #1b1b1b; border: 1px solid #2a2a2a;
+  color: #eee; padding: .65rem .75rem; border-radius: 8px;
+}
+.modal-close {
+  position: absolute; top: .5rem; right: .6rem;
+  background: transparent; border: none; color: #bbb;
+  font-size: 1.4rem; cursor: pointer;
+}
+.auth-switch { margin-top: .75rem; font-size: .95rem; color: #bbb; }
+.auth-switch a { color: #f6b45f; }
+.auth-message { margin-top: .5rem; min-height: 1.25rem; font-size: .9rem; }
+.btn.small { padding: .35rem .7rem; font-size: .9rem; }
