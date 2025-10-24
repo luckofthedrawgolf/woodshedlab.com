@@ -132,4 +132,43 @@ if (uploadBtn) {
     widget.open();
   });
 }
+// ----- Mobile/desktop auth button handling -----
+const authBtns = ['#auth-btn', '#auth-btn-mobile']
+  .map(sel => document.querySelector(sel))
+  .filter(Boolean);
+
+async function refreshAuthButtons() {
+  const { data: { session } } = await supabase.auth.getSession();
+  authBtns.forEach(btn => {
+    btn.textContent = session?.user ? 'Sign out' : 'Sign in';
+  });
+}
+
+authBtns.forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      await supabase.auth.signOut();
+      await refreshAuthButtons();
+    } else {
+      // open your existing auth modal
+      document.getElementById('auth-modal')?.classList.remove('hidden');
+      document.body.classList.remove('nav-open'); // close menu if it's open
+    }
+  });
+});
+
+refreshAuthButtons();
+
+// ----- Mobile menu toggle (keeps panel on-screen) -----
+const menuBtn   = document.querySelector('[data-menu-btn]') || document.querySelector('.hamburger');
+const menuCloseEls = document.querySelectorAll('[data-menu-close], .nav-backdrop');
+
+menuBtn?.addEventListener('click', () => {
+  document.body.classList.add('nav-open');
+});
+
+menuCloseEls.forEach(el => el.addEventListener('click', () => {
+  document.body.classList.remove('nav-open');
+}));
 
