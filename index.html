@@ -142,5 +142,169 @@
     </form>
   </div>
 </div>
+  <!-- Auth Modal -->
+<div id="auth-modal" class="modal hidden" aria-hidden="true" role="dialog">
+  <div class="modal-dialog">
+    <button class="modal-close" id="auth-close" aria-label="Close">&times;</button>
+    <h3 id="auth-title">Sign in</h3>
+
+    <form id="auth-form">
+      <label>
+        <span>Email</span>
+        <input id="auth-email" type="email" autocomplete="email" required />
+      </label>
+
+      <label id="name-field" style="display:none;">
+        <span>Full name (for new accounts)</span>
+        <input id="auth-name" type="text" autocomplete="name" />
+      </label>
+
+      <label>
+        <span>Password</span>
+        <input id="auth-password" type="password" autocomplete="current-password" required />
+      </label>
+
+      <button type="submit" class="btn" id="auth-submit">Continue</button>
+      <div class="auth-message" id="auth-message"></div>
+    </form>
+
+    <p class="auth-switch">
+      <span id="auth-switch-text">Don’t have an account?</span>
+      <a href="#" id="auth-switch-link">Create one</a>
+    </p>
+  </div>
+</div>
+  <script type="module">
+  import { supabase } from './supabaseClient.js';
+
+  // Elements
+  const authBtn = document.querySelector('#auth-btn');     // the "Sign in" button in your header
+  const modal    = document.querySelector('#auth-modal');
+  const closeBtn = document.querySelector('#auth-close');
+  const form     = document.querySelector('#auth-form');
+  const emailEl  = document.querySelector('#auth-email');
+  const passEl   = document.querySelector('#auth-password');
+  const nameRow  = document.querySelector('#name-field');
+  const nameEl   = document.querySelector('#auth-name');
+  const msgEl    = document.querySelector('#auth-message');
+  const titleEl  = document.querySelector('#auth-title');
+  const submitEl = document.querySelector('#auth-submit');
+  const switchText = document.querySelector('#auth-switch-text');
+  const switchLink = document.querySelector('#auth-switch-link');
+
+  let mode = 'signin'; // 'signin' or 'signup'
+
+  function ui(state) {
+    if (state === 'open') {
+      modal.classList.remove('hidden');
+      modal.setAttribute('aria-hidden', 'false');
+    } else if (state === 'close') {
+      modal.classList.add('hidden');
+      modal.setAttribute('aria-hidden', 'true');
+      form.reset();
+      msg('');
+    }
+  }
+
+  function msg(text, isError = false) {
+    msgEl.textContent = text || '';
+    msgEl.style.color = isError ? '#ff9ea1' : '#cde8bd';
+  }
+
+  function setMode(next) {
+    mode = next;
+    const isSignUp = mode === 'signup';
+    titleEl.textContent = isSignUp ? 'Create account' : 'Sign in';
+    submitEl.textContent = isSignUp ? 'Create account' : 'Sign in';
+    nameRow.style.display = isSignUp ? '' : 'none';
+    switchText.textContent = isSignUp ? 'Already have an account?' : 'Don’t have an account?';
+    switchLink.textContent = isSignUp ? 'Sign in' : 'Create one';
+  }
+
+  // Open/close modal
+  authBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    setMode('signin');
+    ui('open');
+  });
+
+  closeBtn.addEventListener('click', () => ui('close'));
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) ui('close');
+  });
+
+  // Toggle sign in / sign up
+  switchLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    setMode(mode === 'signin' ? 'signup' : 'signin');
+  });
+
+  // Submit
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msg('');
+
+    const email = emailEl.value.trim();
+    const password = passEl.value;
+    const fullName = nameEl.value.trim();
+
+    try {
+      if (mode === 'signup') {
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: { data: { full_name: fullName || null } }
+        });
+        if (error) throw error;
+
+        // Ensure a profile row exists
+        if (data.user) {
+          await supabase
+            .from('profiles')
+            .insert([{ id: data.user.id, full_name: fullName || null, role: 'student' }], { upsert: true });
+        }
+        msg('Account created. You are signed in.');
+        ui('close');
+
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        msg('Signed in!');
+        ui('close');
+      }
+    } catch (err) {
+      msg(err.message || 'Something went wrong', true);
+    }
+  });
+
+  // Keep header button in sync with auth state
+  function setHeaderAuth(isLoggedIn) {
+    if (!authBtn) return;
+    if (isLoggedIn) {
+      authBtn.textContent = 'Sign out';
+      authBtn.classList.add('danger');
+      authBtn.onclick = async (e) => {
+        e.preventDefault();
+        await supabase.auth.signOut();
+      };
+    } else {
+      authBtn.textContent = 'Sign in';
+      authBtn.classList.remove('danger');
+      authBtn.onclick = (e) => {
+        e.preventDefault();
+        setMode('signin');
+        ui('open');
+      };
+    }
+  }
+
+  // Initial state + realtime updates
+  const { data: { session } } = await supabase.auth.getSession();
+  setHeaderAuth(!!session);
+
+  supabase.auth.onAuthStateChange((_event, sess) => {
+    setHeaderAuth(!!sess);
+  });
+</script>
 </body>
 </html>
