@@ -34,3 +34,53 @@ document.querySelectorAll('.section, .cta-row, .footer-grid').forEach(el=>{
 
 // Footer year
 const y = document.getElementById('year'); if (y) y.textContent = new Date().getFullYear();
+
+// --- Auth UI wiring (header) ---
+import { supabase } from './supabase.js';
+
+const authBtn  = document.querySelector('#auth-btn');
+const userChip = document.querySelector('#user-chip');
+
+async function refreshAuthUI() {
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user;
+
+  if (user) {
+    // show "Sign out" and user email
+    authBtn.textContent = 'Sign out';
+    userChip.textContent = user.email;
+    userChip.classList.remove('hidden');
+
+    // ensure a profile row exists/updated
+    await supabase.from('profiles').upsert(
+      {
+        id: user.id,
+        full_name: user.user_metadata?.full_name || '',
+        role: 'student'
+      },
+      { onConflict: 'id' }
+    );
+  } else {
+    // show "Sign in"
+    authBtn.textContent = 'Sign in';
+    userChip.textContent = '';
+    userChip.classList.add('hidden');
+  }
+}
+
+// react to auth changes + run once on load
+supabase.auth.onAuthStateChange(() => refreshAuthUI());
+refreshAuthUI();
+
+// clicking the button either opens the modal or signs out
+authBtn.addEventListener('click', async (e) => {
+  e.preventDefault();
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session) {
+    await supabase.auth.signOut();
+  } else {
+    // open your existing auth modal
+    if (typeof ui === 'function') ui('open');
+  }
+});
+
