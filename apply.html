@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Apply as an Instructor — Woodshed Lab</title>
+  <meta name="description" content="Apply to teach at Woodshed Lab. Get paid for live or recorded lessons.">
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    /* Lightweight page-scoped styles just for the form */
+    .apply-hero{
+      background: linear-gradient(180deg, #1f2937 0%, #0b0f14 100%);
+      color:#fff; padding:54px 0 38px; text-align:center;
+    }
+    .apply-hero h1{ font-family:"Playfair Display", Georgia, serif; margin:0 0 8px; font-size:clamp(26px,4.6vw,44px) }
+    .apply-hero p{ color:#E5E7EB; margin:0; font-size:clamp(14px,2.2vw,18px) }
+
+    .form-wrap{ background:#fff; border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.06); padding:22px; margin:22px 0 28px }
+    .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px }
+    .form-grid .full{ grid-column:1 / -1 }
+    label{ display:block; font-weight:600; margin:4px 0 6px; color:#374151 }
+    input, select, textarea{
+      width:100%; padding:12px 12px; border:1px solid #E5E7EB; border-radius:10px; background:#FAFAFA;
+      font:inherit; color:#111827;
+    }
+    textarea{ min-height:120px; resize:vertical }
+    .hint{ font-size:.9rem; color:#6B7280; margin-top:6px }
+    .agree{ display:flex; align-items:flex-start; gap:10px; font-size:.95rem; color:#374151 }
+    .agree input{ margin-top:4px }
+    .actions{ display:flex; gap:12px; flex-wrap:wrap; margin-top:8px }
+    .btn.primary{ background:var(--orange); border-color:transparent }
+    .note{ color:#6B7280; font-size:.9rem; margin-top:8px }
+    @media (max-width:860px){ .form-grid{ grid-template-columns:1fr } }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="site-header" data-header>
+    <div class="container nav">
+      <a class="brand" href="/">WOODSHED&nbsp;LAB</a>
+      <nav class="links">
+        <a href="/#how">How It Works</a>
+        <a href="/instructors.html">Instructors</a>
+        <a href="/#pricing">Pricing</a>
+        <a href="/#faq">FAQ</a>
+        <a class="btn" href="/apply.html">Apply</a>
+      </nav>
+      <button class="hamburger" aria-label="Open Menu" data-menu-btn>
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="mobile-drawer" data-drawer>
+      <a href="/#how">How It Works</a>
+      <a href="/instructors.html">Instructors</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/#faq">FAQ</a>
+      <a class="btn" href="/apply.html">Apply</a>
+    </div>
+  </header>
+
+  <!-- Page hero -->
+  <section class="apply-hero">
+    <div class="container">
+      <h1>Apply to Teach at Woodshed Lab</h1>
+      <p>Get paid for live sessions and recorded feedback. Phase 1 is drums — more instruments soon.</p>
+    </div>
+  </section>
+
+  <!-- Form -->
+  <main class="section">
+    <div class="container">
+      <div class="form-wrap">
+        <!-- IMPORTANT: Replace action URL with your Formspree endpoint -->
+        <form action="https://formspree.io/f/your-endpoint-id" method="POST">
+          <div class="form-grid">
+            <div>
+              <label for="name">Full name</label>
+              <input id="name" name="name" type="text" placeholder="Alex Rivera" required>
+            </div>
+            <div>
+              <label for="email">Email</label>
+              <input id="email" name="_replyto" type="email" placeholder="you@example.com" required>
+            </div>
+
+            <div>
+              <label for="instrument">Primary instrument</label>
+              <select id="instrument" name="instrument" required>
+                <option selected>Drums</option>
+                <option disabled>More instruments coming soon</option>
+              </select>
+            </div>
+            <div>
+              <label for="location">City &amp; Country</label>
+              <input id="location" name="location" type="text" placeholder="Austin, TX (USA)" required>
+            </div>
+
+            <div class="full">
+              <label for="bio">Short bio</label>
+              <textarea id="bio" name="bio" placeholder="Touring/recording drummer, 10+ years teaching. Focus on groove, time feel, and studio prep." required></textarea>
+            </div>
+
+            <div>
+              <label for="experience">Years teaching</label>
+              <input id="experience" name="experience" type="number" min="0" max="60" placeholder="8" required>
+            </div>
+            <div>
+              <label for="rate">Typical hourly rate (USD)</label>
+              <input id="rate" name="rate" type="number" min="10" max="300" placeholder="80" required>
+            </div>
+
+            <div>
+              <label for="introVideo">Intro video (YouTube/Vimeo link)</label>
+              <input id="introVideo" name="intro_video" type="url" placeholder="https://youtu.be/…">
+            </div>
+            <div>
+              <label for="portfolio">Website / portfolio (optional)</label>
+              <input id="portfolio" name="portfolio" type="url" placeholder="https://your-site.com">
+            </div>
+
+            <div>
+              <label for="instagram">Instagram (optional)</label>
+              <input id="instagram" name="instagram" type="url" placeholder="https://instagram.com/…">
+            </div>
+            <div>
+              <label for="youtube">YouTube (optional)</label>
+              <input id="youtube" name="youtube" type="url" placeholder="https://youtube.com/@…">
+            </div>
+
+            <!-- Anti-spam honeypot -->
+            <div style="position:absolute;left:-9999px" aria-hidden="true">
+              <label>Do not fill this out</label>
+              <input name="_gotcha" tabindex="-1" autocomplete="off">
+            </div>
+
+            <!-- Redirect after submit (optional): create /thanks.html later -->
+            <!-- <input type="hidden" name="_redirect" value="https://woodshedlab.com/thanks.html"> -->
+
+            <div class="full agree">
+              <input id="agree" type="checkbox" name="agree" required>
+              <label for="agree">I agree to the <a href="/legal/terms.html">Terms</a> and <a href="/legal/privacy.html">Privacy Policy</a>, and consent to be contacted about my application.</label>
+            </div>
+
+            <div class="full actions">
+              <button class="btn primary" type="submit">Submit Application</button>
+              <a class="btn ghost" href="/">Cancel</a>
+            </div>
+          </div>
+
+          <p class="note">Your info is used to review your application only. We’ll never sell your data.</p>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <div class="brand brand-footer">WOODSHED LAB</div>
+        <p class="tagline">Professional music coaching — anytime, anywhere.</p>
+      </div>
+      <div>
+        <h4>Explore</h4>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/#how">How It Works</a></li>
+          <li><a href="/instructors.html">Instructors</a></li>
+          <li><a href="/#pricing">Pricing</a></li>
+          <li><a href="/#faq">FAQ</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <ul>
+          <li><a href="/contact.html">Contact</a></li>
+          <li><a href="/legal/privacy.html">Privacy</a></li>
+          <li><a href="/legal/terms.html">Terms</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="container footnote">© <span id="year"></span> Woodshed Lab. All rights reserved.</div>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>
