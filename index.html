@@ -206,6 +206,14 @@
     ui('open');
   });
 
+    // Mobile drawer Sign in button
+document.querySelector('#auth-btn-mobile')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  setMode('signin');
+  ui('open');
+});
+
+
   closeBtn.addEventListener('click', () => ui('close'));
   modal.addEventListener('click', (e) => {
     if (e.target === modal) ui('close');
