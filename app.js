@@ -90,6 +90,8 @@ const uploadBtn = document.getElementById('upload-btn');
 if (uploadBtn) {
   uploadBtn.addEventListener('click', async () => {
     const { data: { user } } = await supabase.auth.getUser();
+    const thread_id = new URLSearchParams(location.search).get('thread');
+if (!thread_id) { alert('Missing thread id in URL. Open this page as upload.html?thread=YOUR_THREAD_UUID'); return; }
     if (!user) {
       alert('Please sign in first.');
       return;
@@ -113,6 +115,7 @@ if (uploadBtn) {
             .insert([
               {
                 uploader_id: user.id,
+                thread_id: thread_id,
                 title: result.info.original_filename,
                 url: result.info.secure_url,
               },
