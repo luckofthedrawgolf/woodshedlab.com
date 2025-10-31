@@ -35,7 +35,7 @@
       <a href="#pricing">Pricing</a>
       <a href="#faq">FAQ</a>
       <a class="btn" href="/apply.html">Apply</a>
-      <a href="/signin.html" class="btn small">Sign in</a>
+      <a id="drawer-sign" href="/signin.html" class="btn small">Sign in</a>
 
     </div>
   </header>
@@ -158,7 +158,7 @@
 
   // Elements
   const authBtn = document.querySelector('#auth-btn');     // the "Sign in" button in your header
-  const authBtnMobile = document.querySelector('#auth-btn-mobile');
+  const drawerSign = document.querySelector('#drawer-sign');
   const modal    = document.querySelector('#auth-modal');
   const closeBtn = document.querySelector('#auth-close');
   const form     = document.querySelector('#auth-form');
@@ -268,7 +268,7 @@ document.querySelector('#auth-btn-mobile')?.addEventListener('click', (e) => {
   
   // Keep header + mobile drawer buttons in sync with auth state
 function setHeaderAuth(isLoggedIn) {
-  const buttons = [authBtn, authBtnMobile].filter(Boolean);
+  const buttons = [authBtn, drawerSign].filter(Boolean);
 
   if (buttons.length === 0) return;
 
