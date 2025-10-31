@@ -1,1 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Sign in — Woodshed Lab</title>
+  <meta name="description" content="Sign in to Woodshed Lab." />
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    :root { color-scheme: light; }
+    * { box-sizing: border-box; }
+    html,body { height: 100%; }
+    body {
+      margin: 0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      display: grid; place-items: center; background: #f7f7f8; color: #111;
+    }
+    .card {
+      width: min(92vw, 420px); background: #fff; border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08); padding: 24px;
+    }
+    .brand { font-weight: 800; letter-spacing: .06em; font-size: 1rem; opacity: .8; text-align: center; }
+    h1 { margin: 10px 0 18px; font-size: 1.25rem; text-align: center; }
+    form { display: grid; gap: 12px; margin-top: 6px; }
+    label span { display: block; font-size: .85rem; margin-bottom: 6px; color: #333; }
+    input {
+      width: 100%; padding: 12px 12px; border: 1px solid #e2e2e6; border-radius: 10px;
+      font-size: 1rem; outline: none;
+    }
+    input:focus { border-color: #9aa7ff; box-shadow: 0 0 0 3px rgba(90,105,255,.12); }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 100%; padding: 12px 14px; border-radius: 10px; border: none;
+      background: #111827; color: #fff; font-weight: 600; cursor: pointer;
+    }
+    .btn.secondary { background: #e9e9ee; color: #111; }
+    .row { display: grid; gap: 10px; margin-top: 10px; }
+    .msg { min-height: 20px; font-size: .9rem; text-align: center; margin-top: 8px; }
+    .fine { text-align: center; font-size: .9rem; margin-top: 10px; color: #444; }
+    .fine a { color: #111827; text-decoration: none; font-weight: 600; }
+    .hidden { display: none; }
+    .foot { text-align: center; margin-top: 14px; }
+    .back { font-size: .9rem; color: #555; text-decoration: none; }
+  </style>
+</head>
+<body>
+
+  <main class="card" role="main">
+    <div class="brand">WOODSHED&nbsp;LAB</div>
+    <h1 id="auth-title">Sign in</h1>
+
+    <form id="auth-form">
+      <label>
+        <span>Email</span>
+        <input id="auth-email" type="email" autocomplete="email" required />
+      </label>
+
+      <label id="name-field" class="hidden">
+        <span>Full name (for new accounts)</span>
+        <input id="auth-name" type="text" autocomplete="name" />
+      </label>
+
+      <label>
+        <span>Password</span>
+        <input id="auth-password" type="password" autocomplete="current-password" required />
+      </label>
+
+      <div class="row">
+        <button type="submit" class="btn" id="auth-submit">Sign in</button>
+        <button class="btn secondary" id="toggle-mode" type="button">Create account</button>
+      </div>
+
+      <div class="msg" id="auth-message"></div>
+    </form>
+
+    <div class="fine">
+      <a href="/">← Back to home</a>
+    </div>
+  </main>
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+
+    // Elements
+    const form = document.querySelector('#auth-form');
+    const emailEl = document.querySelector('#auth-email');
+    const passEl = document.querySelector('#auth-password');
+    const nameRow = document.querySelector('#name-field');
+    const nameEl = document.querySelector('#auth-name');
+    const titleEl = document.querySelector('#auth-title');
+    const submitEl = document.querySelector('#auth-submit');
+    const toggleBtn = document.querySelector('#toggle-mode');
+    const msgEl = document.querySelector('#auth-message');
+
+    let mode = 'signin'; // or 'signup'
+
+    function msg(text, isError=false) {
+      msgEl.textContent = text || '';
+      msgEl.style.color = isError ? '#b42318' : '#166534';
+    }
+
+    function setMode(next) {
+      mode = next;
+      const isUp = mode === 'signup';
+      titleEl.textContent   = isUp ? 'Create account' : 'Sign in';
+      submitEl.textContent  = isUp ? 'Create account' : 'Sign in';
+      toggleBtn.textContent = isUp ? 'Back to sign in' : 'Create account';
+      nameRow.classList.toggle('hidden', !isUp);
+    }
+
+    toggleBtn.addEventListener('click', () => setMode(mode === 'signin' ? 'signup' : 'signin'));
+
+    // Redirect helper
+    function goHome() { window.location.href = '/'; }
+
+    // If already signed in → bounce home
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) goHome();
+    })();
+
+    // Handle submit
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg('');
+
+      const email = emailEl.value.trim();
+      const password = passEl.value;
+      const fullName = nameEl.value.trim();
+
+      try {
+        if (mode === 'signup') {
+          const { data, error } = await supabase.auth.signUp({
+            email, password, options: { data: { full_name: fullName || null } }
+          });
+          if (error) throw error;
+
+          if (data.user) {
+            await supabase.from('profiles')
+              .insert([{ id: data.user.id, full_name: fullName || null, role: 'student' }], { upsert: true });
+          }
+          msg('Account created. Redirecting…');
+          setTimeout(goHome, 600);
+        } else {
+          const { error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          msg('Signed in. Redirecting…');
+          setTimeout(goHome, 600);
+        }
+      } catch (err) {
+        msg(err.message || 'Something went wrong', true);
+      }
+    });
+
+    // Also listen for auth changes (e.g., email link flows)
+    supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) goHome();
+    });
+  </script>
+</body>
+</html>
 
