@@ -309,7 +309,16 @@ function setHeaderAuth(isLoggedIn) {
   burger?.addEventListener('click', () => {
     header.classList.toggle('open');
   });
+
+  // ✅ Auto-close drawer when any link in drawer is tapped
+  const drawer = document.querySelector('.mobile-drawer');
+  drawer?.addEventListener('click', (e) => {
+    if (e.target.closest('a')) {
+      header.classList.remove('open');
+    }
+  });
 </script>
+
 
   
 </body>
