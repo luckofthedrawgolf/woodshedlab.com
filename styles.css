@@ -41,19 +41,43 @@ body{
 .hamburger span{display:block; width:22px; height:2px; background:var(--white); margin:4px 0}
 
 /* Mobile drawer */
-.mobile-drawer{display:none}
-@media (max-width: 860px){
-  .links{display:none}
-  .hamburger{display:block}
-  .mobile-drawer{
-    position:fixed; inset:56px 0 0 auto; width:78%;
-    background:rgba(31,41,55,0.98); display:flex; flex-direction:column; padding:16px; gap:12px;
-    transform:translateX(100%); transition:transform .25s ease;
+/* --- Mobile drawer (step 1: park it fully off-screen) --- */
+@media (max-width: 860px) {
+  .links { display: none; }
+  .hamburger { display: block; }
+
+  .mobile-drawer {
+    position: fixed;
+    top: 56px;                 /* match your header height */
+    right: -100vw;             /* keep the panel totally off-screen */
+    width: 78vw;               /* your current width */
+    height: calc(100dvh - 56px);
+    background: rgba(31,41,55,0.98);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    z-index: 1000;
+    transition: right .25s ease;
   }
-  .mobile-drawer a{ color:var(--white); text-decoration:none; padding:10px 6px; border-radius:8px }
-  .mobile-drawer a.btn{ background:var(--orange); text-align:center }
-  .mobile-drawer.open{ transform:translateX(0) }
+
+  .mobile-drawer.open {
+    right: 0;                  /* slide in cleanly */
+  }
+
+  .mobile-drawer a {
+    color: var(--white);
+    text-decoration: none;
+    padding: 10px 6px;
+    border-radius: 8px;
+  }
+
+  .mobile-drawer a.btn {
+    background: var(--orange);
+    text-align: center;
+  }
 }
+
 
 /* Hero */
 .hero{
