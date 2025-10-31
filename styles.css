@@ -338,3 +338,67 @@ html, body {
 body {
   overflow-x: hidden;
 }
+
+/* === WOODSHED — Single-System Mobile Drawer Reset (paste at END) === */
+
+/* 1) Disable all overlay/alt systems on phones */
+@media (max-width: 900px) {
+  /* Any .links-based overlays: off */
+  .site-header .links {
+    display: none !important;
+    position: static !important;
+    transform: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    height: auto !important;
+    width: auto !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+  /* Old body.nav-open system: neutralize */
+  body.nav-open .site-header .links { transform: none !important; }
+  .nav-backdrop { opacity: 0 !important; visibility: hidden !important; }
+}
+
+/* 2) Desktop stays normal */
+@media (min-width: 901px) {
+  .site-header .links {
+    display: flex !important;
+    gap: 16px;
+    position: static !important;
+    background: transparent !important;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .hamburger { display: none !important; }
+  .mobile-drawer { display: none !important; }
+}
+
+/* 3) The ONLY mobile menu = right-side drawer */
+.mobile-drawer {
+  position: fixed;
+  top: 56px;             /* match header height */
+  right: 0;
+  width: 78vw;           /* panel width */
+  max-width: 360px;
+  height: calc(100dvh - 56px);
+  background: rgba(31,41,55,0.98);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  z-index: 1000;
+  transform: translateX(100%);      /* closed by default */
+  transition: transform .25s ease;
+}
+
+/* Open state: header gets .open (already in your JS) */
+.site-header.open .mobile-drawer {
+  transform: translateX(0);
+}
+
+/* 4) Keep burger above drawer so it can close it */
+.hamburger { position: relative; z-index: 1002; }
+
+/* 5) Prevent accidental horizontal scroll */
+html, body { overflow-x: hidden; }
