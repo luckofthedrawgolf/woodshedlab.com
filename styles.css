@@ -49,7 +49,7 @@ body{
   .mobile-drawer {
     position: fixed;
     top: 56px;                 /* match your header height */
-    right: -100vw;             /* keep the panel totally off-screen */
+    right: 0;            /* keep the panel totally off-screen */
     width: 78vw;               /* your current width */
     height: calc(100dvh - 56px);
     background: rgba(31,41,55,0.98);
@@ -58,12 +58,12 @@ body{
     gap: 12px;
     padding: 16px;
     z-index: 1000;
-    transition: right .25s ease;
+    transition: transform .25s ease;
   }
 
-  .mobile-drawer.open {
-    right: 0;                  /* slide in cleanly */
-  }
+  .site-header.open .mobile-drawer {
+  transform: translateX(0);
+}
 
   .mobile-drawer a {
     color: var(--white);
