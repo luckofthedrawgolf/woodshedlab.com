@@ -237,3 +237,74 @@ html, body { overflow-x: hidden; }
   body.nav-open .nav-backdrop { opacity: 1; visibility: visible; }
 }
 
+/* ===== Mobile drawer fix (non-breaking) ===== */
+html, body {
+  overflow-x: hidden; /* stop horizontal drag */
+}
+
+/* Default: nav links visible inline on desktop, become a drawer on mobile */
+@media (max-width: 900px) {
+  .site-header {
+    position: relative;
+    z-index: 1001;
+  }
+
+  /* Turn the .links nav into a right-side drawer */
+  .site-header .links {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100dvh;
+    width: 80vw;
+    max-width: 360px;
+    background: #0e1113;              /* match your header theme */
+    transform: translateX(100%);       /* hidden off-canvas by default */
+    transition: transform .28s ease;
+    padding: 24px 20px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: -8px 0 24px rgba(0,0,0,.4);
+  }
+
+  /* Drawer open state */
+  .site-header .links.open {
+    transform: translateX(0);
+  }
+
+  /* Prevent page scroll when drawer open */
+  body.menu-open {
+    overflow: hidden;
+  }
+
+  /* Backdrop behind the drawer */
+  .nav-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.45);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity .2s ease, visibility .2s ease;
+    z-index: 1000;
+  }
+  .nav-backdrop.show {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Keep hamburger tappable above everything */
+  .hamburger {
+    position: relative;
+    z-index: 1002;
+  }
+
+  /* Small utility so auth chip can hide/show */
+  .hidden { display: none !important; }
+
+  /* Make buttons inside drawer full-width on mobile for easier tap targets */
+  .site-header .links .btn,
+  .site-header .links a.btn {
+    width: 100%;
+    text-align: center;
+  }
+}
