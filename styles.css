@@ -185,7 +185,7 @@ html, body {
 /* Mobile menu = full-screen overlay when header is "open" */
 @media (max-width: 640px) {
   /* Hide the links by default on phones */
-  .site-header .links {
+  .site-header.menu-overlay .links {
     position: fixed;
     top: 56px;          /* roughly header height; adjust if needed */
     left: 0;
@@ -195,10 +195,12 @@ html, body {
     padding: 16px;
     background: rgba(0,0,0,0.92);  /* dark overlay so items are readable */
     z-index: 1000;
+  .site-header:not(.menu-overlay) .links { display: none !important; }
+
   }
 
   /* When header gets .open, show the menu */
-  .site-header.open .links {
+  .site-header.menu-overlay.open .links {
     display: block;
   }
 
