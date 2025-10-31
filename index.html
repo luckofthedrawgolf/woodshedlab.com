@@ -264,26 +264,35 @@ document.querySelector('#auth-btn-mobile')?.addEventListener('click', (e) => {
     }
   });
 
-  // Keep header button in sync with auth state
-  function setHeaderAuth(isLoggedIn) {
-    if (!authBtn) return;
-    if (isLoggedIn) {
-      authBtn.textContent = 'Sign out';
-      authBtn.classList.add('danger');
-      authBtn.onclick = async (e) => {
+  
+  // Keep header + mobile drawer buttons in sync with auth state
+function setHeaderAuth(isLoggedIn) {
+  const buttons = [authBtn, authBtnMobile].filter(Boolean);
+
+  if (buttons.length === 0) return;
+
+  if (isLoggedIn) {
+    buttons.forEach((btn) => {
+      btn.textContent = 'Sign out';
+      btn.classList.add('danger');
+      btn.onclick = async (e) => {
         e.preventDefault();
         await supabase.auth.signOut();
       };
-    } else {
-      authBtn.textContent = 'Sign in';
-      authBtn.classList.remove('danger');
-      authBtn.onclick = (e) => {
+    });
+  } else {
+    buttons.forEach((btn) => {
+      btn.textContent = 'Sign in';
+      btn.classList.remove('danger');
+      btn.onclick = (e) => {
         e.preventDefault();
         setMode('signin');
         ui('open');
       };
-    }
+    });
   }
+}
+
 
   // Initial state + realtime updates
   const { data: { session } } = await supabase.auth.getSession();
