@@ -172,3 +172,39 @@ menuCloseEls.forEach(el => el.addEventListener('click', () => {
   document.body.classList.remove('nav-open');
 }));
 
+// ===== Mobile drawer toggler (safe to append) =====
+(function () {
+  const menuBtn = document.querySelector('.hamburger');
+  const drawer  = document.querySelector('.site-header .links');
+  if (!menuBtn || !drawer) return;
+
+  // Create a backdrop once
+  let backdrop = document.querySelector('.nav-backdrop');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.className = 'nav-backdrop';
+    document.body.appendChild(backdrop);
+  }
+
+  function openMenu() {
+    drawer.classList.add('open');
+    backdrop.classList.add('show');
+    document.body.classList.add('menu-open');
+  }
+  function closeMenu() {
+    drawer.classList.remove('open');
+    backdrop.classList.remove('show');
+    document.body.classList.remove('menu-open');
+  }
+
+  menuBtn.addEventListener('click', () => {
+    drawer.classList.contains('open') ? closeMenu() : openMenu();
+  });
+
+  backdrop.addEventListener('click', closeMenu);
+
+  // Optional: close on ESC
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeMenu();
+  });
+})();
