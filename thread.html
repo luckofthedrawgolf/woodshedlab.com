@@ -40,12 +40,13 @@
       </div>
     </header>
 
-    <div id="list"></div>
+    <!-- VIDEO LIST WILL RENDER HERE -->
+<div id="video-list" style="margin-top: 40px;"></div>
 
-    <div class="empty" id="empty" style="display:none;">
-      No messages yet. Use <b>Upload a video</b> to start this thread.
-    </div>
-  </div>
+<div class="empty" id="empty" style="margin-top:40px; text-align:center; opacity:0.7;">
+  No messages yet. Use <b>Upload a video</b> to start this thread.
+</div>
+
 
   <script type="module">
     import { supabase } from './supabase.js';
@@ -57,6 +58,7 @@
     const empty = document.getElementById('empty');
     const whoEl = document.getElementById('whoami');
     const uploadLink = document.getElementById('upload-link');
+    uploadLink.href = `/upload.html?thread=${encodeURIComponent(threadId)}`;
     const titleEl = document.getElementById('thread-title');
 
     if (!threadId) {
@@ -141,9 +143,9 @@
       }
     }
 
-    await load();
+    await loadVideos();
 
-    // (Optional) live refresh on auth change
+   // (Optional) live refresh on auth change
     supabase.auth.onAuthStateChange(() => {
       supabase.auth.getSession().then(({data})=>{
         const me = data?.session?.user?.id || null;
