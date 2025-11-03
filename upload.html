@@ -29,7 +29,8 @@
 
   <div id="result"></div>
 
-  <script>
+  <script type="module">
+  import { supabase } from './supabase.js'; 
     const cloudName = "degawkws3"; // your Cloudinary cloud name
     const uploadPreset = "unsigned_upload"; // we’ll create this next
 
@@ -59,9 +60,42 @@
         <p>Upload successful!</p>
         <video controls src="${data.secure_url}"></video>
       `;
+      // === Save to Supabase (videos) tied to current thread ===
+
+// 1) Get ?thread=... from the URL
+const thread_id = new URLSearchParams(location.search).get('thread');
+if (!thread_id) {
+  console.warn('No ?thread=... in URL, skipping Supabase save.');
+  return;
+}
+
+// 2) Ensure the user is signed in (we need their id)
+const { data: { user } } = await supabase.auth.getUser();
+if (!user) {
+  alert('Please sign in first.');
+  return;
+}
+
+// 3) Insert the video row
+const { error: dbError } = await supabase
+  .from('videos')
+  .insert({
+    uploader_id: user.id,
+    thread_id: thread_id,
+    title: file.name,           // from above in your code
+    url: data.secure_url        // Cloudinary URL
+  });
+
+if (dbError) {
+  console.error('Supabase insert error:', dbError);
+  alert('Video uploaded, but database save failed.');
+} else {
+  console.log('✅ Saved to Supabase successfully');
+}
+
     });
   </script>
   <script src="https://widget.cloudinary.com/v2.0/global/all.js"></script>
-<script type="module" src="/app.js"></script>
+<!-- <script type="module" src="/app.js"></script> -->
 </body>
 </html>
