@@ -34,6 +34,8 @@
     const uploadPreset = "unsigned_upload"; // we’ll create this next
 
     document.getElementById("upload-btn").addEventListener("click", async () => {
+  alert('Upload button handler is firing');
+  // (leave the rest of your code as-is)
       const fileInput = document.getElementById("fileInput");
       if (!fileInput.files.length) {
         alert("Please select a video file first.");
