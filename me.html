@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Woodshed – Dashboard</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body { background:#0f0f10; color:#e9eef2; font:16px/1.45 system-ui, Arial, sans-serif; }
+    .wrap { max-width: 960px; margin: 32px auto; padding: 0 16px; }
+    .top { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom: 12px; }
+    .pill { background:#232a30; padding:6px 10px; border-radius:999px; font-size:12px; color:#aab6c0; }
+    .grid { display:grid; grid-template-columns: 1fr; gap:12px; }
+    @media (min-width: 720px){ .grid{ grid-template-columns: 1fr 1fr; } }
+    .card { background:#18191c; border:1px solid #2a2f33; border-radius:10px; padding:16px; }
+    .row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-bottom:1px solid #232a30; }
+    .row:last-child { border-bottom:none; }
+    .who { font-weight:700; color:#cde8ff; }
+    .meta { color:#aab6c0; font-size:12px; }
+    .btn { background:#081018; color:#cde7ee; padding:8px 12px; border-radius:8px; text-decoration:none; font-weight:600; }
+    .ghost { background:#232a30; color:#e9eef2; }
+    .empty { color:#9aa7b2; text-align:center; padding:24px 8px; }
+    .list a { text-decoration:none; display:block; }
+    .title { color:#e9eef2; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <h1 style="margin:0;">My Woodshed</h1>
+      <span id="who" class="pill">Checking auth…</span>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:6px;">
+          <h3 style="margin:0;">All threads</h3>
+          <a id="new-upload" class="btn ghost" href="/upload.html">Upload (no thread)</a>
+        </div>
+        <div id="threads" class="list"></div>
+        <div id="threads-empty" class="empty" style="display:none;">No threads yet. Start by uploading from a thread page.</div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 6px;">Latest messages</h3>
+        <div id="latest" class="list"></div>
+        <div id="latest-empty" class="empty" style="display:none;">No messages yet.</div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+
+    // 1) Require auth
+    const whoEl = document.getElementById('who');
+    const { data: { session } } = await supabase.auth.getSession();
+    const me = session?.user?.id || null;
+
+    if (!me) {
+      whoEl.textContent = 'Signed out';
+      // Simple CTA when logged out
+      document.getElementById('threads').innerHTML =
+        '<div class="empty">Please sign in to see your dashboard.</div>';
+      document.getElementById('latest').innerHTML =
+        '<div class="empty">Please sign in to see messages.</div>';
+      // Optional: open your modal if present
+      // document.getElementById('auth-modal')?.classList.remove('hidden');
+      // return to keep the page static while logged out
+    } else {
+      whoEl.textContent = session.user.email || 'Signed in';
+      await loadDashboard(me);
+    }
+
+    // 2) Load data for this user
+    async function loadDashboard(myId){
+      // a) fetch all threads where user is participant
+      const { data: threads, error: tErr } = await supabase
+        .from('lesson_threads')
+        .select('*')
+        .or(`student_id.eq.${myId},instructor_id.eq.${myId}`)
+        .order('created_at', { ascending: false });
+
+      const threadsEl = document.getElementById('threads');
+      const threadsEmptyEl = document.getElementById('threads-empty');
+      threadsEl.innerHTML = '';
+
+      if (tErr){
+        threadsEl.innerHTML = `<div class="empty">Error loading threads.</div>`;
+        console.error(tErr);
+        return;
+      }
+
+      if (!threads || threads.length === 0){
+        threadsEmptyEl.style.display = 'block';
+      } else {
+        threadsEmptyEl.style.display = 'none';
+        for (const th of threads){
+          const otherRole = th.student_id === myId ? 'Instructor' : 'Student';
+          const link = `/thread.html?thread=${encodeURIComponent(th.id)}`;
+
+          const row = document.createElement('div');
+          row.className = 'row';
+          row.innerHTML = `
+            <div>
+              <div class="title">Thread ${th.id.slice(0,8)}…</div>
+              <div class="meta">${otherRole} • ${new Date(th.created_at).toLocaleString()}</div>
+            </div>
+            <a class="btn" href="${link}">Open</a>
+          `;
+          threadsEl.appendChild(row);
+        }
+      }
+
+      // b) Pull latest message per thread (simple version: get recent videos across user’s threads)
+      const threadIds = (threads || []).map(t => t.id);
+      const latestEl = document.getElementById('latest');
+      const latestEmptyEl = document.getElementById('latest-empty');
+      latestEl.innerHTML = '';
+
+      if (threadIds.length === 0){
+        latestEmptyEl.style.display = 'block';
+        return;
+      }
+
+      const { data: videos, error: vErr } = await supabase
+        .from('videos')
+        .select('*')
+        .in('thread_id', threadIds)
+        .order('created_at', { ascending: false })
+        .limit(20);
+
+      if (vErr){
+        latestEl.innerHTML = `<div class="empty">Error loading messages.</div>`;
+        console.error(vErr);
+        return;
+      }
+
+      if (!videos || videos.length === 0){
+        latestEmptyEl.style.display = 'block';
+        return;
+      }
+
+      latestEmptyEl.style.display = 'none';
+
+      // Render a short list of recent messages
+      for (const v of videos){
+        const who = v.uploader_id === myId ? 'You' : 'Them';
+        const link = `/thread.html?thread=${encodeURIComponent(v.thread_id)}`;
+        const row = document.createElement('a');
+        row.href = link;
+        row.className = 'row';
+        row.innerHTML = `
+          <div>
+            <div class="who">${who}</div>
+            <div class="meta">${new Date(v.created_at).toLocaleString()}</div>
+            <div class="title" style="margin-top:4px;">${v.title || 'Video'}</div>
+          </div>
+          <span class="btn ghost">View</span>
+        `;
+        latestEl.appendChild(row);
+      }
+    }
+
+    // Optional: live refresh on auth change
+    supabase.auth.onAuthStateChange((_evt, sess) => {
+      const uid = sess?.user?.id || null;
+      whoEl.textContent = uid ? (sess.user.email || 'Signed in') : 'Signed out';
+      if (uid) loadDashboard(uid);
+    });
+  </script>
+</body>
+</html>
