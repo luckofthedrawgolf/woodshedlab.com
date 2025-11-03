@@ -28,8 +28,7 @@
   </style>
 </head>
 <body>
-  <body>
-
+  
 <!-- Sticky Header (same as homepage) -->
 <header class="site-header" data-header>
   <div class="container nav">
@@ -88,7 +87,7 @@
     // --- 1) Read thread id from URL
     const params = new URLSearchParams(location.search);
     const threadId = params.get('thread');
-    const list = document.getElementById('list');
+    const list = document.getElementById('video-list');
     const empty = document.getElementById('empty');
     const whoEl = document.getElementById('whoami');
     const uploadLink = document.getElementById('upload-link');
@@ -177,7 +176,7 @@
       }
     }
 
-    await loadVideos();
+    await load();
 
    // (Optional) live refresh on auth change
     supabase.auth.onAuthStateChange(() => {
