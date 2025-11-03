@@ -253,12 +253,14 @@ document.querySelector('#auth-btn-mobile')?.addEventListener('click', (e) => {
         }
         msg('Account created. You are signed in.');
         ui('close');
+        window.location.href = '/me.html';
 
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         msg('Signed in!');
         ui('close');
+        window.location.href = '/me.html';
       }
     } catch (err) {
       msg(err.message || 'Something went wrong', true);
