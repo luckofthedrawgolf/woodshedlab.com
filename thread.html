@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lesson Thread</title>
+  <style>
+    :root{
+      --bg:#0f0f10; --card:#18191c; --text:#e9eef2; --muted:#9aa4ad; --accent:#5ac8fa;
+      --me:#213045; --them:#1e232a;
+    }
+    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui, Arial, sans-serif;}
+    .container{max-width:900px;margin:0 auto;padding:20px;gap:16px;display:flex;flex-direction:column;}
+    header{display:flex;align-items:center;gap:12px;justify-content:space-between;}
+    .crumb{color:var(--muted);font-size:14px}
+    .row{display:flex;gap:12px;align-items:flex-start}
+    .avatar{width:36px;height:36px;border-radius:50%;background:#2a2e33;display:flex;align-items:center;justify-content:center;font-weight:700;color:#cde8ff}
+    .bubble{background:var(--them);border-radius:14px;padding:12px 14px;max-width:680px;box-shadow:0 1px 0 rgba(255,255,255,.05) inset}
+    .me .bubble{background:var(--me)}
+    .meta{font-size:12px;color:var(--muted);margin:0 0 8px}
+    video{width:100%;border-radius:10px;outline:0;border:1px solid #2a2f33;background:#000}
+    .title{margin:8px 0 0;color:#dfe7ee;font-size:14px}
+    .empty{color:var(--muted);text-align:center;margin:40px 0}
+    .toolbar{display:flex;gap:8px}
+    .btn{background:var(--accent);color:#081018;padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:600}
+    .btn.ghost{background:#2a3136;color:#cfe7f6}
+    .pill{padding:4px 8px;border-radius:999px;background:#232a30;color:var(--muted);font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <div class="crumb">Lesson Thread</div>
+        <h1 id="thread-title" style="margin:4px 0 0;font-size:20px;">Loading…</h1>
+      </div>
+      <div class="toolbar">
+        <a id="upload-link" class="btn" href="#">Upload a video</a>
+        <span id="whoami" class="pill">Signed out</span>
+      </div>
+    </header>
+
+    <div id="list"></div>
+
+    <div class="empty" id="empty" style="display:none;">
+      No messages yet. Use <b>Upload a video</b> to start this thread.
+    </div>
+  </div>
+
+  <script type="module">
+    import { supabase } from './supabase.js';
+
+    // --- 1) Read thread id from URL
+    const params = new URLSearchParams(location.search);
+    const threadId = params.get('thread');
+    const list = document.getElementById('list');
+    const empty = document.getElementById('empty');
+    const whoEl = document.getElementById('whoami');
+    const uploadLink = document.getElementById('upload-link');
+    const titleEl = document.getElementById('thread-title');
+
+    if (!threadId) {
+      titleEl.textContent = 'Missing ?thread=<uuid> in URL';
+      empty.style.display = 'block';
+      uploadLink.style.display = 'none';
+      throw new Error('No thread id');
+    }
+
+    // Link upload page to this thread
+    uploadLink.href = `/upload.html?thread=${encodeURIComponent(threadId)}`;
+    titleEl.textContent = `Thread ${threadId.slice(0,8)}…`;
+
+    // --- 2) Figure out who is signed in (for "Me" labelling)
+    const { data: sessionData } = await supabase.auth.getSession();
+    const myId = sessionData?.session?.user?.id || null;
+    whoEl.textContent = myId ? 'Signed in' : 'Signed out';
+
+    // Helper: map of user id -> name (from profiles)
+    const nameCache = new Map();
+    async function fetchNames(userIds){
+      const ids = [...new Set(userIds.filter(Boolean).filter(id => !nameCache.has(id)))];
+      if (ids.length === 0) return;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', ids);
+      if (!error && data) data.forEach(r => nameCache.set(r.id, r.full_name || 'User'));
+    }
+    const fmtTime = ts => new Date(ts).toLocaleString();
+
+    // --- 3) Load messages (videos) for this thread
+    async function load(){
+      list.innerHTML = '<div class="empty">Loading…</div>';
+      const { data: videos, error } = await supabase
+        .from('videos')
+        .select('id, uploader_id, title, url, created_at')
+        .eq('thread_id', threadId)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        list.innerHTML = `<div class="empty">Error loading thread.</div>`;
+        console.error(error);
+        return;
+      }
+
+      if (!videos || videos.length === 0) {
+        list.innerHTML = '';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+
+      // get names for avatars/labels
+      await fetchNames(videos.map(v => v.uploader_id));
+
+      // render
+      list.innerHTML = '';
+      for (const v of videos) {
+        const isMe = myId && v.uploader_id === myId;
+        const who = isMe ? 'You' : (nameCache.get(v.uploader_id) || 'User');
+
+        const row = document.createElement('div');
+        row.className = 'row ' + (isMe ? 'me' : 'them');
+
+        const avatar = document.createElement('div');
+        avatar.className = 'avatar';
+        avatar.textContent = (who[0] || 'U').toUpperCase();
+
+        const bubble = document.createElement('div');
+        bubble.className = 'bubble';
+        bubble.innerHTML = `
+          <div class="meta">${who} • ${fmtTime(v.created_at)}</div>
+          <video controls playsinline src="${v.url}"></video>
+          ${v.title ? `<div class="title">${v.title}</div>` : ''}
+        `;
+
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+        list.appendChild(row);
+      }
+    }
+
+    await load();
+
+    // (Optional) live refresh on auth change
+    supabase.auth.onAuthStateChange(() => {
+      supabase.auth.getSession().then(({data})=>{
+        const me = data?.session?.user?.id || null;
+        whoEl.textContent = me ? 'Signed in' : 'Signed out';
+      });
+    });
+  </script>
+</body>
+</html>
