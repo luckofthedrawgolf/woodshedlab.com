@@ -23,6 +23,7 @@
   </style>
 </head>
 <body>
+  
   <h1>Upload Video to Cloudinary</h1>
   <input type="file" id="fileInput" accept="video/*">
   <button id="upload-btn">Upload</button>
@@ -60,6 +61,11 @@
         <p>Upload successful!</p>
         <video controls src="${data.secure_url}"></video>
       `;
+      const __t = new URLSearchParams(location.search).get('thread');
+if (__t) {
+  window.location.href = `/thread.html?thread=${encodeURIComponent(__t)}`;
+}
+
       // === Save to Supabase (videos) tied to current thread ===
 try {
   const thread_id = new URLSearchParams(location.search).get('thread');
