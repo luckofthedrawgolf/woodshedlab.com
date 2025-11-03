@@ -187,5 +187,59 @@
       });
     });
   </script>
+    <script type="module">
+  import { supabase } from './supabase.js';
+
+  // Buttons in the header (desktop + drawer)
+  const authBtn     = document.querySelector('#auth-btn');
+  const drawerSign  = document.querySelector('#drawer-sign');
+
+  // Update header buttons based on auth state
+  function setHeaderAuth(isLoggedIn) {
+    const buttons = [authBtn, drawerSign].filter(Boolean);
+    if (buttons.length === 0) return;
+
+    if (isLoggedIn) {
+      buttons.forEach((btn) => {
+        btn.textContent = 'Sign out';
+        btn.classList.add('danger');
+        btn.onclick = async (e) => {
+          e.preventDefault();
+          await supabase.auth.signOut();
+          // optional: send them home after signout
+          window.location.href = '/';
+        };
+      });
+    } else {
+      buttons.forEach((btn) => {
+        btn.textContent = 'Sign in';
+        btn.classList.remove('danger');
+        btn.onclick = (e) => {
+          e.preventDefault();
+          // No modal on /me.html — send to a sign-in page (or home where the modal exists)
+          window.location.href = '/signin.html';
+        };
+      });
+    }
+  }
+
+  // Initial state + live updates
+  const { data: { session } } = await supabase.auth.getSession();
+  setHeaderAuth(!!session);
+  supabase.auth.onAuthStateChange((_event, sess) => setHeaderAuth(!!sess));
+
+  // Hamburger toggle + auto-close when a link is tapped
+  const burger = document.querySelector('.hamburger');
+  const header = document.querySelector('.site-header');
+  burger?.addEventListener('click', () => {
+    header.classList.toggle('open');
+  });
+
+  const drawer = document.querySelector('.mobile-drawer');
+  drawer?.addEventListener('click', (e) => {
+    if (e.target.closest('a')) header.classList.remove('open');
+  });
+</script>
+
 </body>
 </html>
