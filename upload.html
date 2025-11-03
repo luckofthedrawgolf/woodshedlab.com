@@ -42,6 +42,8 @@
         return;
       }
 
+      document.getElementById("result").innerHTML = `<p>Uploading... please wait ⏳</p>`;
+
       const file = fileInput.files[0];
       const formData = new FormData();
       formData.append("file", file);
