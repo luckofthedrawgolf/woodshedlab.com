@@ -61,37 +61,35 @@
         <video controls src="${data.secure_url}"></video>
       `;
       // === Save to Supabase (videos) tied to current thread ===
+try {
+  const thread_id = new URLSearchParams(location.search).get('thread');
+  if (!thread_id) {
+    alert('Missing ?thread=... in the URL. Open this page as upload.html?thread=YOUR_THREAD_UUID');
+    return;
+  }
 
-// 1) Get ?thread=... from the URL
-const thread_id = new URLSearchParams(location.search).get('thread');
-if (!thread_id) {
-  console.warn('No ?thread=... in URL, skipping Supabase save.');
-  return;
+  const { data: { user }, error: userErr } = await supabase.auth.getUser();
+  if (!user) {
+    alert('Please sign in first.');
+    return;
+  }
+
+  const { error: dbError } = await supabase
+    .from('videos')
+    .insert({
+      uploader_id: user.id,
+      thread_id: thread_id,
+      title: file.name,
+      url: data.secure_url
+    });
+
+  if (dbError) {
+    alert('Video uploaded, but database save failed: ' + dbError.message);
+  }
+} catch (e) {
+  alert('Unexpected error saving to Supabase: ' + (e?.message || e));
 }
 
-// 2) Ensure the user is signed in (we need their id)
-const { data: { user } } = await supabase.auth.getUser();
-if (!user) {
-  alert('Please sign in first.');
-  return;
-}
-
-// 3) Insert the video row
-const { error: dbError } = await supabase
-  .from('videos')
-  .insert({
-    uploader_id: user.id,
-    thread_id: thread_id,
-    title: file.name,           // from above in your code
-    url: data.secure_url        // Cloudinary URL
-  });
-
-if (dbError) {
-  console.error('Supabase insert error:', dbError);
-  alert('Video uploaded, but database save failed.');
-} else {
-  console.log('✅ Saved to Supabase successfully');
-}
 
     });
   </script>
