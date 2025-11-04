@@ -273,6 +273,10 @@ document.querySelector('#auth-btn-mobile')?.addEventListener('click', (e) => {
   
   // Keep header + mobile drawer buttons in sync with auth state
 function setHeaderAuth(isLoggedIn) {
+  
+  document.querySelector('#profile-link')?.classList.toggle('hidden', !isLoggedIn);
+  document.querySelector('#drawer-profile')?.classList.toggle('hidden', !isLoggedIn);
+  
   const buttons = [authBtn, drawerSign].filter(Boolean);
 
   if (buttons.length === 0) return;
