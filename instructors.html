@@ -3,13 +3,21 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Instructors — Woodshed Lab</title>
-  <meta name="description" content="Browse featured drum instructors and find your coach.">
+  <title>Instructor Profile</title>
   <link rel="stylesheet" href="/styles.css" />
-  <link rel="icon" href="/favicon.ico" />
+  <style>
+    body { background:#0f0f10; color:#e9eef2; font:16px/1.45 system-ui, Arial, sans-serif; }
+    .wrap { max-width: 960px; margin: 32px auto; padding: 0 16px; }
+    .card { background:#18191c; border:1px solid #2a2f33; border-radius:12px; padding:20px; }
+    .meta { color:#9aa7b2; font-size:14px; margin-top:6px; }
+    .btn { background:#081018; color:#cde7ee; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600; display:inline-block; }
+    .btn.primary { background:#ffa130; color:#0b0e12; }
+    .note { color:#9aa7b2; margin-top:16px; }
+  </style>
 </head>
 <body>
-  <!-- Header -->
+
+  <!-- Header (reuse your working header markup/behavior via styles.css/app.js pattern) -->
   <header class="site-header" data-header>
     <div class="container nav">
       <a class="brand" href="/">WOODSHED&nbsp;LAB</a>
@@ -19,118 +27,160 @@
         <a href="/#pricing">Pricing</a>
         <a href="/#faq">FAQ</a>
         <a class="btn" href="/apply.html">Apply</a>
+        <button id="auth-btn-mobile" class="btn small hide-desktop">Sign in</button>
+        <a href="#" id="auth-btn" class="btn small">Sign in</a>
+        <span id="user-chip" class="hidden" style="margin-left:.5rem;opacity:.8;"></span>
       </nav>
       <button class="hamburger" aria-label="Open Menu" data-menu-btn>
         <span></span><span></span><span></span>
       </button>
     </div>
     <div class="mobile-drawer" data-drawer>
+      <a href="/">Home</a>
       <a href="/#how">How It Works</a>
       <a href="/instructors.html">Instructors</a>
       <a href="/#pricing">Pricing</a>
       <a href="/#faq">FAQ</a>
       <a class="btn" href="/apply.html">Apply</a>
+      <a id="drawer-sign" href="/signin.html" class="btn small">Sign in</a>
     </div>
   </header>
 
-  <main class="section">
-    <div class="container">
-      <h1 style="font-family:'Playfair Display', Georgia, serif; color:var(--brown); margin:0 0 8px">
-        Drum Instructors
-      </h1>
-      <p style="margin:0 0 18px; color:#4B5563">
-        Browse featured pros. Filters/search are placeholders for now.
-      </p>
+  <div class="wrap">
+    <h1 id="name" style="margin:0 0 8px;">Instructor</h1>
+    <div id="email" class="meta"></div>
 
-      <!-- Filters (static for now) -->
-      <div style="display:flex; gap:10px; flex-wrap:wrap; margin:12px 0 22px">
-        <select aria-label="Style">
-          <option>All styles</option>
-          <option>Rock</option>
-          <option>Jazz</option>
-          <option>Metal</option>
-          <option>Funk</option>
-        </select>
-        <select aria-label="Skill level">
-          <option>All levels</option>
-          <option>Beginner</option>
-          <option>Intermediate</option>
-          <option>Advanced</option>
-        </select>
-        <select aria-label="Price">
-          <option>All prices</option>
-          <option>$ — Budget</option>
-          <option>$$ — Standard</option>
-          <option>$$$ — Premium</option>
-        </select>
+    <div class="card" style="margin-top:16px;">
+      <p id="bio" class="meta">Loading profile…</p>
+      <div style="margin-top:16px;">
+        <a id="start" href="#" class="btn primary">Start lesson (open thread)</a>
       </div>
-
-      <!-- Cards -->
-      <div style="display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px">
-        <!-- Card 1 -->
-        <article style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.06)">
-          <img src="/assets/instructors/drummer-1.jpg" alt="Instructor portrait" style="width:100%;height:180px;object-fit:cover">
-          <div style="padding:14px">
-            <h3 style="margin:0 0 4px;font-size:1.05rem">Alex Rivera</h3>
-            <p style="margin:0 0 6px;color:#6B7280">Rock • Intermediate–Advanced • Austin, TX</p>
-            <p style="margin:0 10px 12px 0;color:#4B5563">Touring drummer; groove & pocket, studio prep.</p>
-            <a class="btn" href="#" style="display:inline-block;background:var(--orange);border-color:transparent">View Profile</a>
-          </div>
-        </article>
-
-        <!-- Card 2 -->
-        <article style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.06)">
-          <img src="/assets/instructors/drummer-2.jpg" alt="Instructor portrait" style="width:100%;height:180px;object-fit:cover">
-          <div style="padding:14px">
-            <h3 style="margin:0 0 4px;font-size:1.05rem">Maya Chen</h3>
-            <p style="margin:0 0 6px;color:#6B7280">Jazz • All Levels • New York, NY</p>
-            <p style="margin:0 10px 12px 0;color:#4B5563">Time feel, brushwork, chart reading, college prep.</p>
-            <a class="btn" href="#" style="display:inline-block;background:var(--orange);border-color:transparent">View Profile</a>
-          </div>
-        </article>
-
-        <!-- Card 3 -->
-        <article style="background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.06)">
-          <img src="/assets/instructors/drummer-3.jpg" alt="Instructor portrait" style="width:100%;height:180px;object-fit:cover">
-          <div style="padding:14px">
-            <h3 style="margin:0 0 4px;font-size:1.05rem">Diego Martins</h3>
-            <p style="margin:0 0 6px;color:#6B7280">Metal • Intermediate–Pro • Los Angeles, CA</p>
-            <p style="margin:0 10px 12px 0;color:#4B5563">Speed, stamina, double-kick mechanics, tracking.</p>
-            <a class="btn" href="#" style="display:inline-block;background:var(--orange);border-color:transparent">View Profile</a>
-          </div>
-        </article>
-      </div>
+      <div class="note">You’ll be redirected to the private thread for you and this instructor.</div>
     </div>
-  </main>
+  </div>
 
-  <footer class="site-footer">
-    <div class="container footer-grid">
-      <div>
-        <div class="brand brand-footer">WOODSHED LAB</div>
-        <p class="tagline">Professional music coaching — anytime, anywhere.</p>
-      </div>
-      <div>
-        <h4>Explore</h4>
-        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/#how">How It Works</a></li>
-          <li><a href="/instructors.html">Instructors</a></li>
-          <li><a href="/#pricing">Pricing</a></li>
-          <li><a href="/#faq">FAQ</a></li>
-        </ul>
-      </div>
-      <div>
-        <h4>Company</h4>
-        <ul>
-          <li><a href="/contact.html">Contact</a></li>
-          <li><a href="/legal/privacy.html">Privacy</a></li>
-          <li><a href="/legal/terms.html">Terms</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="container footnote">© <span id="year"></span> Woodshed Lab. All rights reserved.</div>
-  </footer>
+  <script type="module">
+    import { supabase } from './supabase.js';
 
-  <script src="/app.js"></script>
+    // --- read ?id= from URL ---
+    const params = new URLSearchParams(location.search);
+    const instructorId = params.get('id');
+
+    const nameEl = document.getElementById('name');
+    const emailEl = document.getElementById('email');
+    const bioEl = document.getElementById('bio');
+    const startBtn = document.getElementById('start');
+
+    // Require auth for starting a lesson, but allow viewing profile if logged out
+    const { data: { session } } = await supabase.auth.getSession();
+    const myId = session?.user?.id || null;
+
+    // Load instructor profile
+    async function loadProfile() {
+      if (!instructorId) {
+        nameEl.textContent = 'Missing instructor id';
+        bioEl.textContent = 'Open this page as /instructor.html?id=INSTRUCTOR_UUID';
+        startBtn.style.display = 'none';
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, role')
+        .eq('id', instructorId)
+        .single();
+
+      if (error || !data) {
+        nameEl.textContent = 'Instructor not found';
+        bioEl.textContent = 'Check the link or id.';
+        startBtn.style.display = 'none';
+        return;
+      }
+
+      nameEl.textContent = data.full_name || 'Instructor';
+      emailEl.textContent = data.email || '';
+      bioEl.textContent = (data.role === 'instructor')
+        ? 'Verified instructor profile.'
+        : 'Note: this profile is not marked as instructor (role != instructor).';
+    }
+
+    await loadProfile();
+
+    // Start/Find a thread and redirect
+    startBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+
+      // force login
+      if (!myId) {
+        alert('Please sign in first.');
+        location.href = '/';
+        return;
+      }
+
+      if (!instructorId) return;
+
+      // 1) Try to find an existing thread
+      const { data: existing, error: findErr } = await supabase
+        .from('lesson_threads')
+        .select('id')
+        .or(`student_id.eq.${myId},instructor_id.eq.${myId}`)
+        .eq('student_id', myId)
+        .eq('instructor_id', instructorId)
+        .limit(1)
+        .maybeSingle();
+
+      if (!findErr && existing?.id) {
+        location.href = `/thread.html?thread=${encodeURIComponent(existing.id)}`;
+        return;
+      }
+
+      // 2) Create a new thread
+      const { data: created, error: createErr } = await supabase
+        .from('lesson_threads')
+        .insert([{ student_id: myId, instructor_id: instructorId }])
+        .select('id')
+        .single();
+
+      if (createErr) {
+        console.error(createErr);
+        alert('Could not start lesson.');
+        return;
+      }
+
+      location.href = `/thread.html?thread=${encodeURIComponent(created.id)}`;
+    });
+
+    // --- header auth UI like on your other pages ---
+    const authBtn    = document.querySelector('#auth-btn');
+    const drawerSign = document.querySelector('#drawer-sign');
+
+    function setHeaderAuth(isLoggedIn) {
+      const buttons = [authBtn, drawerSign].filter(Boolean);
+      if (buttons.length === 0) return;
+      if (isLoggedIn) {
+        buttons.forEach((btn) => {
+          btn.textContent = 'Sign out';
+          btn.classList.add('danger');
+          btn.onclick = async (e) => {
+            e.preventDefault();
+            await supabase.auth.signOut();
+            window.location.href = '/';
+          };
+        });
+      } else {
+        buttons.forEach((btn) => {
+          btn.textContent = 'Sign in';
+          btn.classList.remove('danger');
+          btn.onclick = (e) => {
+            e.preventDefault();
+            window.location.href = '/signin.html';
+          };
+        });
+      }
+    }
+
+    setHeaderAuth(!!myId);
+    supabase.auth.onAuthStateChange((_e, sess) => setHeaderAuth(!!sess));
+  </script>
 </body>
 </html>
