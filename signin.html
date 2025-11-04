@@ -156,6 +156,41 @@
       if (session?.user) goHome();
     });
   </script>
+  <script type="module">
+  import { supabase } from './supabase.js';
+
+  // Check immediately if already logged in
+  checkAndRedirect((await supabase.auth.getSession()).data.session);
+
+  // Check again whenever login completes
+  supabase.auth.onAuthStateChange((_evt, sess) => checkAndRedirect(sess));
+
+  async function checkAndRedirect(sess) {
+    if (!sess) return; // user not logged in yet
+    const uid = sess.user.id;
+
+    // Look up role in Profiles table
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', uid)
+      .single();
+
+    // If lookup fails → default dashboard
+    if (error) {
+      window.location.href = '/me.html';
+      return;
+    }
+
+    // Redirect by role
+    if (data.role === 'instructor') {
+      window.location.href = `/instructor.html?id=${uid}`;
+    } else {
+      window.location.href = '/me.html';
+    }
+  }
+</script>
+
 </body>
 </html>
 
