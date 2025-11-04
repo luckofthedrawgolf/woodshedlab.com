@@ -13,11 +13,12 @@
     .btn { background:#081018; color:#cde7ee; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600; display:inline-block; }
     .btn.primary { background:#ffa130; color:#0b0e12; }
     .note { color:#9aa7b2; margin-top:16px; }
+    .hidden { display:none; }
   </style>
 </head>
 <body>
 
-  <!-- Header (reuse your working header markup/behavior via styles.css/app.js pattern) -->
+  <!-- Header (same pattern as the rest of the site) -->
   <header class="site-header" data-header>
     <div class="container nav">
       <a class="brand" href="/">WOODSHED&nbsp;LAB</a>
@@ -27,6 +28,7 @@
         <a href="/#pricing">Pricing</a>
         <a href="/#faq">FAQ</a>
         <a class="btn" href="/apply.html">Apply</a>
+        <a href="/me.html" id="profile-link" class="btn small hidden">My Profile</a>
         <button id="auth-btn-mobile" class="btn small hide-desktop">Sign in</button>
         <a href="#" id="auth-btn" class="btn small">Sign in</a>
         <span id="user-chip" class="hidden" style="margin-left:.5rem;opacity:.8;"></span>
@@ -43,12 +45,13 @@
       <a href="/#faq">FAQ</a>
       <a class="btn" href="/apply.html">Apply</a>
       <a id="drawer-sign" href="/signin.html" class="btn small">Sign in</a>
+      <a id="drawer-profile" href="/me.html" class="btn small hidden">My Profile</a>
     </div>
   </header>
 
   <div class="wrap">
     <h1 id="name" style="margin:0 0 8px;">Instructor</h1>
-    <div id="email" class="meta"></div>
+    <div id="roleLine" class="meta"></div>
 
     <div class="card" style="margin-top:16px;">
       <p id="bio" class="meta">Loading profile…</p>
@@ -62,71 +65,69 @@
   <script type="module">
     import { supabase } from './supabase.js';
 
-    // --- read ?id= from URL ---
+    // --- Read ?id=<INSTRUCTOR_UUID> from URL ---
     const params = new URLSearchParams(location.search);
     const instructorId = params.get('id');
 
-    const nameEl = document.getElementById('name');
-    const emailEl = document.getElementById('email');
-    const bioEl = document.getElementById('bio');
+    const nameEl   = document.getElementById('name');
+    const roleEl   = document.getElementById('roleLine');
+    const bioEl    = document.getElementById('bio');
     const startBtn = document.getElementById('start');
 
-    // Require auth for starting a lesson, but allow viewing profile if logged out
+    // Auth (who am I?)
     const { data: { session } } = await supabase.auth.getSession();
     const myId = session?.user?.id || null;
 
-    // Load instructor profile
+    // --- Load instructor profile (from public.profiles: id, full_name, role) ---
     async function loadProfile() {
       if (!instructorId) {
         nameEl.textContent = 'Missing instructor id';
-        bioEl.textContent = 'Open this page as /instructor.html?id=INSTRUCTOR_UUID';
+        bioEl.textContent  = 'Open this page as /instructor.html?id=INSTRUCTOR_UUID';
         startBtn.style.display = 'none';
         return;
       }
 
       const { data, error } = await supabase
-        .from('profiles')
-        .select('id, full_name, email, role')
+        .from('profiles')              // table is lowercase 'profiles'
+        .select('id, full_name, role') // no 'email' here; that lives in auth.users
         .eq('id', instructorId)
         .single();
 
       if (error || !data) {
+        console.error(error);
         nameEl.textContent = 'Instructor not found';
-        bioEl.textContent = 'Check the link or id.';
+        bioEl.textContent  = 'Check the link or id.';
         startBtn.style.display = 'none';
         return;
       }
 
       nameEl.textContent = data.full_name || 'Instructor';
-      emailEl.textContent = data.email || '';
-      bioEl.textContent = (data.role === 'instructor')
+      roleEl.textContent = data.role ? `Role: ${data.role}` : '';
+      bioEl.textContent  = (data.role === 'instructor')
         ? 'Verified instructor profile.'
         : 'Note: this profile is not marked as instructor (role != instructor).';
     }
 
     await loadProfile();
 
-    // Start/Find a thread and redirect
+    // --- Start or find an existing thread, then redirect ---
     startBtn.addEventListener('click', async (e) => {
       e.preventDefault();
+      if (!instructorId) return;
 
-      // force login
+      // Require login
       if (!myId) {
         alert('Please sign in first.');
         location.href = '/';
         return;
       }
 
-      if (!instructorId) return;
-
-      // 1) Try to find an existing thread
+      // 1) Try to find existing thread for this student + instructor
       const { data: existing, error: findErr } = await supabase
         .from('lesson_threads')
         .select('id')
-        .or(`student_id.eq.${myId},instructor_id.eq.${myId}`)
         .eq('student_id', myId)
         .eq('instructor_id', instructorId)
-        .limit(1)
         .maybeSingle();
 
       if (!findErr && existing?.id) {
@@ -150,37 +151,55 @@
       location.href = `/thread.html?thread=${encodeURIComponent(created.id)}`;
     });
 
-    // --- header auth UI like on your other pages ---
-    const authBtn    = document.querySelector('#auth-btn');
-    const drawerSign = document.querySelector('#drawer-sign');
+    // --- Header auth UI (Sign in/out + My Profile toggle) ---
+    const authBtn        = document.querySelector('#auth-btn');
+    const drawerSign     = document.querySelector('#drawer-sign');
+    const profileLink    = document.querySelector('#profile-link');
+    const drawerProfile  = document.querySelector('#drawer-profile');
 
     function setHeaderAuth(isLoggedIn) {
       const buttons = [authBtn, drawerSign].filter(Boolean);
-      if (buttons.length === 0) return;
-      if (isLoggedIn) {
-        buttons.forEach((btn) => {
-          btn.textContent = 'Sign out';
-          btn.classList.add('danger');
-          btn.onclick = async (e) => {
-            e.preventDefault();
-            await supabase.auth.signOut();
-            window.location.href = '/';
-          };
-        });
-      } else {
-        buttons.forEach((btn) => {
-          btn.textContent = 'Sign in';
-          btn.classList.remove('danger');
-          btn.onclick = (e) => {
-            e.preventDefault();
-            window.location.href = '/signin.html';
-          };
-        });
+
+      // Toggle My Profile visibility
+      if (profileLink)   profileLink.classList.toggle('hidden', !isLoggedIn);
+      if (drawerProfile) drawerProfile.classList.toggle('hidden', !isLoggedIn);
+
+      if (buttons.length) {
+        if (isLoggedIn) {
+          buttons.forEach((btn) => {
+            btn.textContent = 'Sign out';
+            btn.classList.add('danger');
+            btn.onclick = async (e) => {
+              e.preventDefault();
+              await supabase.auth.signOut();
+              window.location.href = '/';
+            };
+          });
+        } else {
+          buttons.forEach((btn) => {
+            btn.textContent = 'Sign in';
+            btn.classList.remove('danger');
+            btn.onclick = (e) => {
+              e.preventDefault();
+              window.location.href = '/signin.html';
+            };
+          });
+        }
       }
     }
 
     setHeaderAuth(!!myId);
-    supabase.auth.onAuthStateChange((_e, sess) => setHeaderAuth(!!sess));
+    supabase.auth.onAuthStateChange((_evt, sess) => setHeaderAuth(!!sess));
+
+    // --- Mobile drawer open/close (if your styles.css expects this) ---
+    const burger = document.querySelector('.hamburger');
+    const header = document.querySelector('.site-header');
+    burger?.addEventListener('click', () => header.classList.toggle('open'));
+
+    const drawer = document.querySelector('.mobile-drawer');
+    drawer?.addEventListener('click', (e) => {
+      if (e.target.closest('a')) header.classList.remove('open');
+    });
   </script>
 </body>
 </html>
