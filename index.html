@@ -160,6 +160,7 @@
   import { supabase } from './supabase.js';
 
   // Elements
+  const profileLink = document.querySelector('#profile-link');
   const authBtn = document.querySelector('#auth-btn');     // the "Sign in" button in your header
   const drawerSign = document.querySelector('#drawer-sign');
   const modal    = document.querySelector('#auth-modal');
@@ -273,7 +274,9 @@ document.querySelector('#auth-btn-mobile')?.addEventListener('click', (e) => {
   
   // Keep header + mobile drawer buttons in sync with auth state
 function setHeaderAuth(isLoggedIn) {
-  
+
+  if (profileLink) profileLink.style.display = isLoggedIn ? '' : 'none';
+
   document.querySelector('#profile-link')?.classList.toggle('hidden', !isLoggedIn);
   document.querySelector('#drawer-profile')?.classList.toggle('hidden', !isLoggedIn);
   
