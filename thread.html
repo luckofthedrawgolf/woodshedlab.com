@@ -4,6 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lesson Thread</title>
+  <link rel="stylesheet" href="/styles.css" />
+
   <style>
     :root{
       --bg:#0f0f10; --card:#18191c; --text:#e9eef2; --muted:#9aa4ad; --accent:#5ac8fa;
@@ -11,7 +13,7 @@
     }
     body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 system-ui, Arial, sans-serif;}
     .container{max-width:900px;margin:0 auto;padding:20px;gap:16px;display:flex;flex-direction:column;}
-    header{display:flex;align-items:center;gap:12px;justify-content:space-between;}
+    .thread-top{display:flex;align-items:center;gap:12px;justify-content:space-between;}
     .crumb{color:var(--muted);font-size:14px}
     .row{display:flex;gap:12px;align-items:flex-start}
     .avatar{width:36px;height:36px;border-radius:50%;background:#2a2e33;display:flex;align-items:center;justify-content:center;font-weight:700;color:#cde8ff}
@@ -62,7 +64,7 @@
 <div class="wrap">
 
   <div class="container">
-    <header>
+    <div class="thread-top">
       <div>
         <div class="crumb">Lesson Thread</div>
         <h1 id="thread-title" style="margin:4px 0 0;font-size:20px;">Loading…</h1>
@@ -71,7 +73,7 @@
         <a id="upload-link" class="btn" href="#">Upload a video</a>
         <span id="whoami" class="pill">Signed out</span>
       </div>
-    </header>
+    </div>
 
     <!-- VIDEO LIST WILL RENDER HERE -->
 <div id="video-list" style="margin-top: 40px;"></div>
