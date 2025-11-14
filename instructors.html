@@ -170,6 +170,7 @@
     }
 
     async function loadInstructors() {
+      console.log('loadInstructors START');
       if (!listEl) return;
       listEl.innerHTML = '<p class="empty">Loading instructors…</p>';
       errorEl.style.display = 'none';
