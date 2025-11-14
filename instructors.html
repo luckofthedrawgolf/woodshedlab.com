@@ -62,18 +62,50 @@
   <script type="module">
     import { supabase } from './supabase.js';
 
-    // --- Read ?id=<INSTRUCTOR_UUID> from URL ---
-    const params = new URLSearchParams(location.search);
-    const instructorId = params.get('id');
-
-    const nameEl   = document.getElementById('name');
-    const roleEl   = document.getElementById('roleLine');
-    const bioEl    = document.getElementById('bio');
-    const startBtn = document.getElementById('start');
+    
+    
 
     // Auth (who am I?)
     const { data: { session } } = await supabase.auth.getSession();
     const myId = session?.user?.id || null;
+
+      // --- Load list of all instructors ---
+  const listEl = document.getElementById('instructor-list');
+
+  async function loadInstructors() {
+    if (!listEl) return;
+
+    listEl.textContent = 'Loading instructors…';
+
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('id, full_name, role')
+      .eq('role', 'instructor')
+      .order('full_name', { ascending: true });
+
+    if (error) {
+      console.error(error);
+      listEl.textContent = 'Error loading instructors.';
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      listEl.textContent = 'No instructors available yet.';
+      return;
+    }
+
+    listEl.innerHTML = '';
+    data.forEach((inst) => {
+      const row = document.createElement('div');
+      row.className = 'meta';
+      row.style.margin = '8px 0';
+      row.textContent = inst.full_name || 'Instructor';
+      listEl.appendChild(row);
+    });
+  }
+
+  await loadInstructors();
+
 
     // --- Load instructor profile (from public.profiles: id, full_name, role) ---
     async function loadProfile() {
@@ -107,17 +139,7 @@
 
     await loadProfile();
 
-    // --- Start or find an existing thread, then redirect ---
-    startBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      if (!instructorId) return;
-
-      // Require login
-      if (!myId) {
-        alert('Please sign in first.');
-        location.href = '/';
-        return;
-      }
+    
 
       // 1) Try to find existing thread for this student + instructor
       const { data: existing, error: findErr } = await supabase
