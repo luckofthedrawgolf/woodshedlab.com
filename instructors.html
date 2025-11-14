@@ -107,37 +107,7 @@
   await loadInstructors();
 
 
-    // --- Load instructor profile (from public.profiles: id, full_name, role) ---
-    async function loadProfile() {
-      if (!instructorId) {
-        nameEl.textContent = 'Missing instructor id';
-        bioEl.textContent  = 'Open this page as /instructor.html?id=INSTRUCTOR_UUID';
-        startBtn.style.display = 'none';
-        return;
-      }
-
-      const { data, error } = await supabase
-        .from('profiles')              // table is lowercase 'profiles'
-        .select('id, full_name, role') // no 'email' here; that lives in auth.users
-        .eq('id', instructorId)
-        .single();
-
-      if (error || !data) {
-        console.error(error);
-        nameEl.textContent = 'Instructor not found';
-        bioEl.textContent  = 'Check the link or id.';
-        startBtn.style.display = 'none';
-        return;
-      }
-
-      nameEl.textContent = data.full_name || 'Instructor';
-      roleEl.textContent = data.role ? `Role: ${data.role}` : '';
-      bioEl.textContent  = (data.role === 'instructor')
-        ? 'Verified instructor profile.'
-        : 'Note: this profile is not marked as instructor (role != instructor).';
-    }
-
-    await loadProfile();
+   
 
     
 
