@@ -3,28 +3,93 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Instructor Profile</title>
+  <title>Instructors — Woodshed Lab</title>
   <link rel="stylesheet" href="/styles.css" />
   <style>
-    body { background:#0f0f10; color:#e9eef2; font:16px/1.45 system-ui, Arial, sans-serif; }
-    .wrap { max-width: 960px; margin: 32px auto; padding: 0 16px; }
-    .card { background:#18191c; border:1px solid #2a2f33; border-radius:12px; padding:20px; }
-    .meta { color:#9aa7b2; font-size:14px; margin-top:6px; }
-    .btn { background:#081018; color:#cde7ee; padding:10px 14px; border-radius:10px; text-decoration:none; font-weight:600; display:inline-block; }
-    .btn.primary { background:#ffa130; color:#0b0e12; }
-    .note { color:#9aa7b2; margin-top:16px; }
-    .hidden { display:none; }
+    body {
+      background: #0f0f10;
+      color: #e9eef2;
+      font: 16px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    }
+    .wrap {
+      max-width: 960px;
+      margin: 32px auto;
+      padding: 0 16px 48px;
+    }
+    .page-title {
+      margin: 0 0 4px;
+      font-size: 28px;
+      font-weight: 700;
+    }
+    .page-sub {
+      margin: 0 0 20px;
+      color: #9aa7b2;
+      font-size: 14px;
+    }
+    .card {
+      background: #18191c;
+      border-radius: 12px;
+      border: 1px solid #2a2f33;
+      padding: 18px 18px 10px;
+    }
+    .inst-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .inst-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #101216;
+      border: 1px solid #262a2f;
+      cursor: default;
+      transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
+    }
+    .inst-row:hover {
+      background: #1b1d22;
+      border-color: #ffa130;
+      transform: translateY(-1px);
+    }
+    .inst-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .inst-name {
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .inst-meta {
+      font-size: 13px;
+      color: #9aa7b2;
+    }
+    .inst-tag {
+      font-size: 12px;
+      color: #ffa130;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .empty,
+    .error-text {
+      font-size: 14px;
+      color: #9aa7b2;
+    }
+    .error-text {
+      color: #ffb0b0;
+    }
   </style>
 </head>
 <body>
-
   <!-- Header (same pattern as the rest of the site) -->
   <header class="site-header" data-header>
     <div class="container nav">
       <a class="brand" href="/">WOODSHED&nbsp;LAB</a>
       <nav class="links">
         <a href="/#how">How It Works</a>
-        <a href="/instructors.html">Instructors</a>
+        <a href="/instructors.html" class="active">Instructors</a>
         <a href="/#pricing">Pricing</a>
         <a href="/#faq">FAQ</a>
         <a class="btn" href="/apply.html">Apply</a>
@@ -49,107 +114,34 @@
     </div>
   </header>
 
-  <div class="wrap">
-    <h1 style="margin:0 0 8px;">Instructors</h1>
-    <div id="roleLine" class="meta"></div>
+  <main class="wrap">
+    <h1 class="page-title">Instructors</h1>
+    <p class="page-sub">Browse available coaches. Anyone with role = “instructor” in Supabase will appear here.</p>
 
-    <div class="card" style="margin-top:16px;">
-  <div id="instructor-list" class="meta">Loading instructors…</div>
-</div>
-
-  </div>
+    <div class="card">
+      <div id="instructor-list" class="inst-list">
+        <p class="empty">Loading instructors…</p>
+      </div>
+      <p id="inst-error" class="error-text" style="display:none;margin-top:10px;"></p>
+    </div>
+  </main>
 
   <script type="module">
     import { supabase } from './supabase.js';
 
-    
-    
-
-    // Auth (who am I?)
-    const { data: { session } } = await supabase.auth.getSession();
-    const myId = session?.user?.id || null;
-
-      // --- Load list of all instructors ---
-  const listEl = document.getElementById('instructor-list');
-
-  async function loadInstructors() {
-    if (!listEl) return;
-
-    listEl.textContent = 'Loading instructors…';
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('id, full_name, role')
-      .eq('role', 'instructor')
-      .order('full_name', { ascending: true });
-
-    if (error) {
-      console.error(error);
-      listEl.textContent = 'Error loading instructors.';
-      return;
-    }
-
-    if (!data || data.length === 0) {
-      listEl.textContent = 'No instructors available yet.';
-      return;
-    }
-
-    listEl.innerHTML = '';
-    data.forEach((inst) => {
-      const row = document.createElement('div');
-      row.className = 'meta';
-      row.style.margin = '8px 0';
-      row.textContent = inst.full_name || 'Instructor';
-      listEl.appendChild(row);
-    });
-  }
-
-  await loadInstructors();
-
-
-   
-
-    
-
-      // 1) Try to find existing thread for this student + instructor
-      const { data: existing, error: findErr } = await supabase
-        .from('lesson_threads')
-        .select('id')
-        .eq('student_id', myId)
-        .eq('instructor_id', instructorId)
-        .maybeSingle();
-
-      if (!findErr && existing?.id) {
-        location.href = `/thread.html?thread=${encodeURIComponent(existing.id)}`;
-        return;
-      }
-
-      // 2) Create a new thread
-      const { data: created, error: createErr } = await supabase
-        .from('lesson_threads')
-        .insert([{ student_id: myId, instructor_id: instructorId }])
-        .select('id')
-        .single();
-
-      if (createErr) {
-        console.error(createErr);
-        alert('Could not start lesson.');
-        return;
-      }
-
-      location.href = `/thread.html?thread=${encodeURIComponent(created.id)}`;
-    });
-
-    // --- Header auth UI (Sign in/out + My Profile toggle) ---
-    const authBtn        = document.querySelector('#auth-btn');
-    const drawerSign     = document.querySelector('#drawer-sign');
-    const profileLink    = document.querySelector('#profile-link');
-    const drawerProfile  = document.querySelector('#drawer-profile');
+    const listEl       = document.getElementById('instructor-list');
+    const errorEl      = document.getElementById('inst-error');
+    const authBtn      = document.querySelector('#auth-btn');
+    const drawerSign   = document.querySelector('#drawer-sign');
+    const profileLink  = document.querySelector('#profile-link');
+    const drawerProfile = document.querySelector('#drawer-profile');
+    const burger       = document.querySelector('.hamburger');
+    const header       = document.querySelector('.site-header');
+    const drawer       = document.querySelector('.mobile-drawer');
 
     function setHeaderAuth(isLoggedIn) {
       const buttons = [authBtn, drawerSign].filter(Boolean);
 
-      // Toggle My Profile visibility
       if (profileLink)   profileLink.classList.toggle('hidden', !isLoggedIn);
       if (drawerProfile) drawerProfile.classList.toggle('hidden', !isLoggedIn);
 
@@ -177,18 +169,67 @@
       }
     }
 
-    setHeaderAuth(!!myId);
-    supabase.auth.onAuthStateChange((_evt, sess) => setHeaderAuth(!!sess));
+    async function loadInstructors() {
+      if (!listEl) return;
+      listEl.innerHTML = '<p class="empty">Loading instructors…</p>';
+      errorEl.style.display = 'none';
 
-    // --- Mobile drawer open/close (if your styles.css expects this) ---
-    const burger = document.querySelector('.hamburger');
-    const header = document.querySelector('.site-header');
-    burger?.addEventListener('click', () => header.classList.toggle('open'));
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, role')
+        .eq('role', 'instructor')
+        .order('full_name', { ascending: true });
 
-    const drawer = document.querySelector('.mobile-drawer');
-    drawer?.addEventListener('click', (e) => {
-      if (e.target.closest('a')) header.classList.remove('open');
+      if (error) {
+        console.error(error);
+        listEl.innerHTML = '';
+        errorEl.textContent = 'Error loading instructors.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        listEl.innerHTML = '<p class="empty">No instructors available yet.</p>';
+        return;
+      }
+
+      listEl.innerHTML = '';
+      data.forEach((inst) => {
+        const row = document.createElement('div');
+        row.className = 'inst-row';
+
+        row.innerHTML = `
+          <div class="inst-main">
+            <div class="inst-name">${inst.full_name || 'Instructor'}</div>
+            <div class="inst-meta">Role: ${inst.role || 'instructor'}</div>
+          </div>
+          <div class="inst-tag">Available</div>
+        `;
+
+        // In the future we can add: click to open profile/thread
+        // row.addEventListener('click', () => {
+        //   window.location.href = '/instructor.html?id=' + encodeURIComponent(inst.id);
+        // });
+
+        listEl.appendChild(row);
+      });
+    }
+
+    async function init() {
+      const { data: { session } } = await supabase.auth.getSession();
+      setHeaderAuth(!!session?.user);
+
+      await loadInstructors();
+
+      supabase.auth.onAuthStateChange((_event, sess) => {
+        setHeaderAuth(!!sess?.user);
+      });
+    }
+
+    // mobile drawer
+    burger?.addEventListener('click', () => {
+      header.classList.toggle('open');
     });
-  </script>
-</body>
-</html>
+    drawer?.addEventListener('click', (e) => {
+      if (e.targe
+
