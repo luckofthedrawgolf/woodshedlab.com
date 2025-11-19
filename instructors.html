@@ -216,7 +216,7 @@
       });
     }
 
-    async function init() {
+        async function init() {
       const { data: { session } } = await supabase.auth.getSession();
       setHeaderAuth(!!session?.user);
 
@@ -231,6 +231,16 @@
     burger?.addEventListener('click', () => {
       header.classList.toggle('open');
     });
-    drawer?.addEventListener('click', (e) => {
-      if (e.targe
 
+    drawer?.addEventListener('click', (e) => {
+      if (e.target === drawer) {
+        header.classList.remove('open');
+      }
+    });
+
+    // Start the app
+    init().catch((err) => {
+      console.error('init error', err);
+      errorEl.textContent = 'Error loading instructors.';
+      errorEl.style.display = 'block';
+    });
