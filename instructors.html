@@ -179,7 +179,6 @@
       const { data, error } = await supabase
         .from('profiles')
         .select('id, full_name, role')
-        .eq('role', 'instructor')
         .order('full_name', { ascending: true });
 
       if (error) {
